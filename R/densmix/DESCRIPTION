@@ -4,10 +4,11 @@ Title: Fit Density Mixture Models Using EM
 Version: 0.1.0
 Authors@R: 
     person("Aleksandrs", "Gehsbargs", , "your-email@example.com", role = c("aut", "cre"))
-Description: Fits density mixtures using the expectation-maximization algorithm. 
-    It also provides functions for data simulation and visualization of fitted models. 
-    Two mixture models are supported (a) one-dimensional mixtures of exponential and normal 
-    distributions and (b) mixtures of multinomials.
+Description: Fits density mixtures using the expectation-maximization
+    algorithm.  It also provides functions for data simulation and
+    visualization of fitted models.  Two mixture models are supported (a)
+    one-dimensional mixtures of exponential and normal distributions and
+    (b) mixtures of multinomials.
 License: MIT + file LICENSE
 Imports: 
     jsonlite,

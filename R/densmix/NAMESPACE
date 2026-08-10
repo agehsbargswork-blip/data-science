@@ -2,10 +2,15 @@
 
 export(em_control)
 export(fit_exp_normal)
+export(gen_exp_norm)
+export(validate_exp_normal_parameters)
 importFrom(stats,
   dexp,
   dnorm,
   quantile,
+  rbinom,
+  rexp,
+  rnorm,
   sd
 )
 importFrom(utils,

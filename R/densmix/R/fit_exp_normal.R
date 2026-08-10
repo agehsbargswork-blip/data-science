@@ -38,27 +38,7 @@ fit_exp_normal <- function(data,
     control
   )
 
-  required_parameters <- c("weight", "lambda", "mu", "sigma")
-
-  if( !all( required_parameters %in% names(start) ) ){
-    stop(
-      paste("List `start` should contain following parameters: ",paste(required_parameters,collapse=", "),sep="")
-    )
-  }
-
-  parameters <- unlist(start[required_parameters])
-
-  if(
-    parameters['weight'] <= 0 ||
-    parameters['weight'] >= 1 ||
-    parameters['lambda'] <= 0 ||
-    parameters['mu'] <= 0 ||
-    parameters['sigma'] <= 0
-  ){
-    stop(
-      paste("Wrong parameters of mixture specified. Must be: 0<weight<1, lambda>0, mu>0, sd>0.")
-    )
-  }
+  parameters <- validate_exp_normal_parameters(start)
 
   data_sum <- sum(data)
   n <- length(data)
