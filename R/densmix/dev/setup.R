@@ -45,3 +45,14 @@ devtools::check()
 #
 #
 # devtools::test()
+
+devtools::build()
+devtools::install()
+
+install.packages(
+  "C:/Users/agehs/git/data-science/R/densmix_0.1.0.tar.gz",
+  repos = NULL,
+  type = "source"
+)
+
+devtools::build_readme()

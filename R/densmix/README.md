@@ -1,21 +1,10 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
 
 # densmix
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The goal of densmix is to fit density mixture models to data.
@@ -27,7 +16,8 @@ Two mixture models are supported:
 
 ## Installation
 
-You can install the development version of densmix from [GitHub](https://github.com/) with:
+You can install the development version of densmix from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -38,7 +28,7 @@ pak::pak("agehsbargswork-blip/data-science")
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r example}
+``` r
 library(densmix)
 
 params <- list(
@@ -51,5 +41,6 @@ params <- list(
 data <- gen_exp_normal(size=1000,params)
 emfit <- fit_exp_normal(data)
 plot(emfit)
-
 ```
+
+<img src="man/figures/README-example-1.png" alt="" width="100%" />
