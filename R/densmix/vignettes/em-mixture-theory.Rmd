@@ -1,0 +1,198 @@
+---
+title: "Mixture density model"
+output: html_document
+---
+
+We want to describe data as a mixture of densities:
+
+$$
+p(x) = \sum_{j=1}^{k} w_j \varphi_j(x, \theta_j),
+\qquad
+\sum_{j=1}^{k} w_j = 1,
+\qquad
+w_j \geq 0.
+$$
+
+Where:
+
+- $w_j$ are weights of each distribution (we will call then "components").
+- $\varphi_j(x, \theta_j)$ are densities of components ($\theta_j$ can be a vector of parameters).
+
+We can interpret that density model as a two-step data generation process:
+
+To generate data point $x$:
+
+- first choose component $j$ with probability $w_j$, then 
+- generate one observation from respective density $p(x \mid j) \equiv \varphi_j(x, \theta_j)$.
+
+That is, we assume each data point is generated from one of the $k$ distributions. As we will see these distributions can be of any shape or form, as soon as there are derivatives wrt to parameters $\theta_j$.
+
+## General solution
+
+To solve we need to explicitly write down maximum likelihood:
+
+$$
+\begin{cases}
+L(w, \theta)
+= \ln \displaystyle\prod_{i=1}^{l} p(x_i)
+= \displaystyle\sum_{i=1}^{l} \ln \displaystyle\sum_{j=1}^{k}
+w_j \varphi_j(x_i, \theta_j)
+\longrightarrow \displaystyle\max_{w,\theta}, \\
+\displaystyle\sum_{j=1}^{k} w_j = 1,
+\quad w_j \geq 0.
+\end{cases}
+$$
+
+There is no general closed form solution, but there is general form of iterative EM-algorithm that shows how to solve that problem:
+
+### Theorem (necessary condition of extremum)
+
+Vector $(w_j, \theta_j)_{j=1}^{k}$ gives local extremum to $L(w, \theta)$ if it satisfies the following system of iterative equations (that also depends on auxiliary variables $g_{ij}$):
+
+E-step:
+
+$$
+g_{ij}
+= \frac{w_j \varphi_j(x_i, \theta_j)}
+{\displaystyle\sum_{s=1}^{k} w_s \varphi_j(x_i, \theta_s)},
+\qquad
+i = 1, \ldots, l,
+\qquad
+j = 1, \ldots, k.
+$$
+
+M-step:
+
+$$
+\theta_j
+= \underset{\theta}{\arg\max}
+\sum_{i=1}^{l} g_{ij} \ln \varphi_j(x_i, \theta),
+\qquad
+j = 1, \ldots, k.
+$$
+
+$$
+w_j
+= \frac{1}{l} \sum_{i=1}^{l} g_{ij},
+\qquad
+j = 1, \ldots, k.
+$$
+
+## Algorithm for density separation
+
+**Input:**
+
+- Dataset: $X = \{x_1, \ldots, x_l\}$
+- Number of densities: $k$
+- Density shapes: $\varphi_1, \ldots, \varphi_k$
+
+**Output:**
+
+- Density parameters: $\theta_1, \ldots, \theta_k$
+- Weights: $w_1, \ldots, w_k$
+
+**Initialization:**
+
+Set: $w_j = \frac{1}{k}$
+
+Parameters $\theta_j$ to any reasonable default values
+
+### Algorithm
+
+Repeat *E* and *M* steps:
+
+E-step:
+
+$$
+g_{ij}
+:= \frac{w_j \varphi_j(x_i, \theta_j)}
+{\displaystyle\sum_{s=1}^{k} w_s \varphi_j(x_i, \theta_s)},
+\qquad
+i = 1, \ldots, l,
+\qquad
+j = 1, \ldots, k.
+$$
+
+M-step:
+
+$$
+\theta_j
+:= \underset{\theta}{\arg\max}
+\sum_{i=1}^{l} g_{ij} \ln \varphi_j(x_i, \theta),
+\qquad
+j = 1, \ldots, k.
+$$
+
+$$
+w_j
+:= \frac{1}{l} \sum_{i=1}^{l} g_{ij},
+\qquad
+j = 1, \ldots, k.
+$$
+
+Until convergence $\theta_j$, $w_j$ and $g_{ij}$ stabilize.
+
+## Example 1
+
+We model time until next session for a user of a website or an app. Often such data has a bimodal distribution with exponential density around zero and normal density around 24 hours. That clearly describes two processes:
+
+Exponential: "Customer is on the website / app"
+
+Normal: "Customer comes back next day around the same time"
+
+Assumption:
+
+For each customer data comes from mixture of exponential and normal densities.
+
+$$
+p(x)
+= w_1 \lambda e^{-\lambda x}
++ w_2 \frac{1}{\sqrt{2\pi}\sigma}
+e^{-\frac{(x-\mu)^2}{2\sigma^2}}.
+$$
+
+Repeat *E* and *M* steps:
+
+E-step:
+
+$$
+g_{i1}
+:= \frac{w_1 \lambda e^{-\lambda x_i}}
+{w_1 \lambda e^{-\lambda x_i}
++ w_2 \frac{1}{\sqrt{2\pi}\sigma}
+e^{-\frac{(x_i-\mu)^2}{2\sigma^2}}}.
+$$
+
+$$
+g_{i2}
+:= \frac{w_2 \frac{1}{\sqrt{2\pi}\sigma}
+e^{-\frac{(x_i-\mu)^2}{2\sigma^2}}}
+{w_1 \lambda e^{-\lambda x_i}
++ w_2 \frac{1}{\sqrt{2\pi}\sigma}
+e^{-\frac{(x_i-\mu)^2}{2\sigma^2}}}.
+$$
+
+M-step:
+
+$$
+\lambda
+:= \frac{\displaystyle\sum_{i=1}^{l} g_{i1}}
+{\displaystyle\sum_{i=1}^{l} g_{i1}x_i}.
+$$
+
+$$
+\mu
+:= \frac{\displaystyle\sum_{i=1}^{l} g_{i2}x_i}
+{\displaystyle\sum_{i=1}^{l} g_{i2}}.
+$$
+
+$$
+\sigma^2
+:= \frac{\displaystyle\sum_{i=1}^{l} g_{i2}(x_i-\mu)^2}
+{\displaystyle\sum_{i=1}^{l} g_{i2}}.
+$$
+
+$$
+w_j
+:= \frac{1}{l} \sum_{i=1}^{l} g_{ij}.
+$$
