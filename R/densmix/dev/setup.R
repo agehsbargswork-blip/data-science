@@ -32,3 +32,4 @@ devtools::load_all()
 
 # Run package checks
 devtools::check()
+

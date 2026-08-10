@@ -131,7 +131,8 @@ fit_exp_normal <- function(data,
       converged = converged,
       loglik = loglik,
       deltas = deltas,
-      total_delta = total_delta
+      total_delta = total_delta,
+      data = data
     ),
     class = "em_exp_normal"
   )

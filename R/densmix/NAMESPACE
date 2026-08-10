@@ -3,7 +3,13 @@
 export(em_control)
 export(fit_exp_normal)
 export(gen_exp_norm)
+export(plot_exp_norm)
 export(validate_exp_normal_parameters)
+importFrom(grDevices,rgb)
+importFrom(graphics,
+  hist,
+  par
+)
 importFrom(stats,
   dexp,
   dnorm,

@@ -11,6 +11,8 @@ Description: Fits density mixtures using the expectation-maximization
     (b) mixtures of multinomials.
 License: MIT + file LICENSE
 Imports: 
+    graphics,
+    grDevices,
     jsonlite,
     stats,
     utils
