@@ -24,6 +24,11 @@ usethis::use_test("control")
 usethis::use_test("validation")
 usethis::use_test("fit-exp-normal")
 
+usethis::use_readme_rmd()
+
+
+# ---------------------------------------
+
 devtools::document()
 
 # Update DESCRIPTION and generate documentation/NAMESPACE
@@ -38,5 +43,5 @@ devtools::load_all()
 devtools::check()
 
 #
-
-devtools::test()
+#
+# devtools::test()
