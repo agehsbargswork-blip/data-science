@@ -134,6 +134,7 @@ fit_exp_normal <- function(data,
       total_delta = total_delta,
       data = data
     ),
-    class = "em_exp_normal"
+    class = c("em_exp_normal_fit", "em_fit")
   )
+
 }
