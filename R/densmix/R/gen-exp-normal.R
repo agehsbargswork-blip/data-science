@@ -5,7 +5,7 @@
 #'
 #' @return Vector generated from the mixture.
 #' @export
-gen_exp_norm <- function(size, parameters){
+gen_exp_normal <- function(size, parameters){
 
   parameters <- validate_exp_normal_parameters(parameters)
 

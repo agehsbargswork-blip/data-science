@@ -3,7 +3,7 @@
 S3method(plot,em_exp_normal_fit)
 export(em_control)
 export(fit_exp_normal)
-export(gen_exp_norm)
+export(gen_exp_normal)
 export(validate_exp_normal_parameters)
 importFrom(grDevices,rgb)
 importFrom(graphics,

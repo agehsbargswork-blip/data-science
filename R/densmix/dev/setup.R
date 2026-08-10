@@ -18,6 +18,12 @@ usethis::use_r("plot_multinomial")
 
 usethis::use_r("control")
 
+# usethis::use_testthat()
+
+usethis::use_test("control")
+usethis::use_test("validation")
+usethis::use_test("fit-exp-normal")
+
 devtools::document()
 
 # Update DESCRIPTION and generate documentation/NAMESPACE
@@ -31,3 +37,6 @@ devtools::load_all()
 # Run package checks
 devtools::check()
 
+#
+
+devtools::test()

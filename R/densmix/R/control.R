@@ -38,11 +38,15 @@ em_control <- function(
     stop("`min_weight` must be a real number between 0 and 1.")
   }
 
+  if(!is.logical(verbose)){
+    stop("`verbose` must be TRUE or FALSE")
+  }
+
   list(
     max_iter = max_iter,
     tolerance = tolerance,
     min_weight = min_weight,
-    verbose = FALSE
+    verbose = verbose
   )
 
 }

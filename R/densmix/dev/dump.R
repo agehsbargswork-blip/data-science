@@ -8,6 +8,8 @@ params <- list(
   sigma=2
 )
 
-data <- gen_exp_norm(size=1000,params)
+data <- gen_exp_normal(size=1000,params)
 emfit <- fit_exp_normal(data)
 plot(emfit)
+
+
