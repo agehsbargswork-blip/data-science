@@ -16,3 +16,4 @@ Description: Fits density mixtures using the expectation-maximization algorithm.
     distributions and (b) mixtures of multinomials
 License: MIT + file LICENSE
 Encoding: UTF-8
+Config/roxygen2/version: 8.1.0

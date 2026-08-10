@@ -18,4 +18,5 @@ usethis::use_r("plot_multinomial")
 
 usethis::use_r("control")
 
+devtools::document()
 devtools::check()
