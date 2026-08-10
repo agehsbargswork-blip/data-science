@@ -1,6 +1,9 @@
 ---
 title: "Mixture density model"
-output: html_document
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
 ---
 
 We want to describe data as a mixture of densities:
