@@ -20,3 +20,15 @@ usethis::use_r("control")
 
 devtools::document()
 devtools::check()
+
+
+# Update DESCRIPTION and generate documentation/NAMESPACE
+attachment::att_amend_desc(
+  update.config = TRUE
+)
+
+# Load every function from R/
+devtools::load_all()
+
+# Run package checks
+devtools::check()
