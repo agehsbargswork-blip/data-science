@@ -46,6 +46,10 @@ devtools::check()
 #
 # devtools::test()
 
+
+# ---------------------------------------
+
+
 devtools::build()
 devtools::install()
 

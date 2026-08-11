@@ -4,10 +4,10 @@
 \alias{validate_exp_normal_parameters}
 \title{Validate that parameters for exp-normal density are specified correctly}
 \usage{
-validate_exp_normal_parameters(parameters)
+validate_exp_normal_parameters(start)
 }
 \arguments{
-\item{parameters}{List with parameters}
+\item{start}{List with parameters}
 }
 \value{
 parameters as vector

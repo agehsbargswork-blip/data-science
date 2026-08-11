@@ -22,12 +22,12 @@ test_that("valid exponential-normal parameters are accepted", {
 })
 
 
-test_that("`parameters` must be a named list.", {
+test_that("`start` must be a named list.", {
   parameters <- unlist(valid_parameters)
 
   expect_error(
     validate_exp_normal_parameters(parameters),
-    "`parameters` must be a named list."
+    "`start` must be a named list."
   )
 })
 
