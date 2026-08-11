@@ -34,11 +34,11 @@ You can install the development version of densmix from [GitHub](https://github.
 pak::pak("agehsbargswork-blip/data-science")
 ```
 
-## Example
+## Example: exp-normal density
 
-This is a basic example which shows you how to solve a common problem:
+Here we generate exponential-normal data and check if algorithm reconstructs it: 
 
-```{r example}
+```{r example1}
 library(densmix)
 
 params <- list(
@@ -53,3 +53,41 @@ emfit <- fit_exp_normal(data)
 plot(emfit)
 
 ```
+
+## Example: multinomial density
+
+Here we generate multinomial data with three densities and check if algorithm reconstructs it. We compare all pairs of densities as order of reconstruction is arbitrary.
+
+```{r example2}
+library(densmix)
+set.seed(123)
+gendata <- gen_em_mn(size = 1000,
+                     params = list("n_components" = 3,
+                                   "n_buckets" = 12,
+                                   "dirichlet" = rep(1,12),
+                                   "component_weights" = c(0.1,0.2,0.7),
+                                   "n_actions_per_bucket" = list(
+                                     "max_actions" = 100,
+                                     "prob_action" = 0.5
+                                   )
+                     )
+      )
+
+
+fitdata <- fit_multinomial(gendata$data, control = list(verbose = TRUE))
+
+par(mfrow=c(3,3))
+for(i in 1:3){
+  for(j in 1:3){
+    plot(gendata$mixture_profiles[i,]
+         ,fitdata$mixture_profiles[j,]
+         ,pch=19
+         ,xlab=paste("Generated profile ",i,sep="")
+         ,ylab=paste("Fitted profile ",j,sep="")
+         )
+  }
+}
+
+plot(fitdata)
+```
+

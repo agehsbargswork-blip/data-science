@@ -9,7 +9,7 @@
 # emfit <- fit_exp_normal(data)
 # plot(emfit)
 
-
+set.seed(123)
 gendata <- gen_em_mn(size = 1000,
                      params = list("n_components" = 3,
                                    "n_buckets" = 12,
@@ -24,12 +24,15 @@ gendata <- gen_em_mn(size = 1000,
 
 
 fitdata <- fit_multinomial(gendata$data, control = list(verbose = TRUE))
+
 par(mfrow=c(3,3))
 for(i in 1:3){
   for(j in 1:3){
     plot(gendata$mixture_profiles[i,]
          ,fitdata$mixture_profiles[j,]
          ,pch=19
+         ,xlab=paste("Generated profile ",i,sep="")
+         ,ylab=paste("Fitted profile ",j,sep="")
          )
   }
 }
