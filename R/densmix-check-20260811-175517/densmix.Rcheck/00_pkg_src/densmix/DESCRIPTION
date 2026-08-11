@@ -1,0 +1,21 @@
+Type: Package
+Package: densmix
+Title: Fit Density Mixture Models Using EM
+Version: 0.1.0
+Authors@R: 
+    person("Aleksandrs", "Gehsbargs", , "your-email@example.com", role = c("aut", "cre"))
+Description: Fits density mixtures using the expectation-maximization
+    algorithm.  It also provides functions for data simulation and
+    visualization of fitted models.  Two mixture models are supported (a)
+    one-dimensional mixtures of exponential and normal distributions and
+    (b) mixtures of multinomials.
+License: MIT + file LICENSE
+Imports: graphics, grDevices, jsonlite, stats, utils
+Suggests: testthat
+Config/roxygen2/version: 8.1.0
+Config/testthat/edition: 3
+Encoding: UTF-8
+NeedsCompilation: no
+Packaged: 2026-08-11 16:55:21 UTC; agehs
+Author: Aleksandrs Gehsbargs [aut, cre]
+Maintainer: Aleksandrs Gehsbargs <your-email@example.com>

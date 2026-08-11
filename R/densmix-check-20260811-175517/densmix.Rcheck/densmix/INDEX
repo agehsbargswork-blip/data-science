@@ -1,0 +1,18 @@
+em_control              Configure the EM algorithm
+fit_exp_normal          Fit one dimensional exponential-normal density
+                        using EM algorithm
+fit_multinomial         Fit multinomial density mixture using EM
+                        algorithm
+gen_em_mn               Generate dataset from mixture of multinomials
+gen_exp_normal          Generate one dimensional exponential-normal
+                        density
+get_dirichlet           Generate one vector from Diriclhet distribution
+plot.em_exp_normal_fit
+                        Plot output of EM fit to 1-dim exp-normal
+                        density using EM.
+validate_exp_normal_parameters
+                        Validate that parameters for exp-normal density
+                        are specified correctly
+validate_multinom_parameters
+                        Validate that parameters for multinomial algo
+                        are specified correctly

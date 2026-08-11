@@ -1,0 +1,9 @@
+em_control	em_control
+fit_exp_normal	fit_exp_normal
+fit_multinomial	fit_multinomial
+gen_em_mn	gen_em_mn
+gen_exp_normal	gen_exp_normal
+get_dirichlet	get_dirichlet
+plot.em_exp_normal_fit	plot.em_exp_normal_fit
+validate_exp_normal_parameters	validate_exp_normal_parameters
+validate_multinom_parameters	validate_multinom_parameters

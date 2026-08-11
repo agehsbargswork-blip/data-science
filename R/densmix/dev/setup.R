@@ -23,6 +23,7 @@ usethis::use_r("control")
 usethis::use_test("control")
 usethis::use_test("validation")
 usethis::use_test("fit-exp-normal")
+usethis::use_test("fit-multinomial")
 
 usethis::use_readme_rmd()
 
@@ -30,16 +31,10 @@ usethis::use_readme_rmd()
 # ---------------------------------------
 
 devtools::document()
-
-# Update DESCRIPTION and generate documentation/NAMESPACE
 attachment::att_amend_desc(
   update.config = TRUE
 )
-
-# Load every function from R/
 devtools::load_all()
-
-# Run package checks
 devtools::check()
 
 #
