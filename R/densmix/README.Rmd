@@ -31,7 +31,9 @@ You can install the development version of densmix from [GitHub](https://github.
 
 ``` r
 # install.packages("pak")
-pak::pak("agehsbargswork-blip/data-science")
+pak::pkg_install(
+  "densmix=github::agehsbargswork-blip/data-science/R/densmix"
+)
 ```
 
 ## Example: exp-normal density
