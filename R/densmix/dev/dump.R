@@ -48,9 +48,9 @@ exp_norm_param_list <-
     seq_len(n_sim),
     gen_exp_norm_params <- function(j){
       list(
-        weight=runif(1,0.1,0.9),
-        lambda=runif(1,0.5,5),
-        mu=runif(1,7,25),
+        weight=runif(1,0.5,0.9),
+        lambda=runif(1,0.2,0.3),
+        mu=runif(1,10,20),
         sigma=runif(1,1,2)
       )
     }
@@ -103,13 +103,23 @@ for(cname in cnames){
   )
 }
 
-exp_norm_fit_param_df[exp_norm_fit_param_df$mu<1,]
-
 par(mfrow=c(2,3))
-hist(exp_norm_gen_datasets_list[[48]],main=48)
-hist(exp_norm_gen_datasets_list[[63]],main=63)
-hist(exp_norm_gen_datasets_list[[70]],main=70)
-hist(exp_norm_gen_datasets_list[[116]],main=116)
-hist(exp_norm_gen_datasets_list[[148]],main=148)
-hist(exp_norm_gen_datasets_list[[186]],main=186)
+hist(exp_norm_gen_datasets_list[[1]],main=1,breaks=30)
+hist(exp_norm_gen_datasets_list[[5]],main=5,breaks=30)
+hist(exp_norm_gen_datasets_list[[10]],main=10,breaks=30)
+hist(exp_norm_gen_datasets_list[[100]],main=100,breaks=30)
+hist(exp_norm_gen_datasets_list[[150]],main=150,breaks=30)
+hist(exp_norm_gen_datasets_list[[200]],main=200,breaks=30)
 
+iter_fit <-
+  do.call(
+    rbind,
+    lapply(
+      exp_norm_fits_list,
+      get_param <- function(l){
+        l$iterations
+      }
+    )
+  )
+hist(iter_fit)
+quantile(iter_fit)
