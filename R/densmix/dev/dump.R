@@ -39,5 +39,77 @@ for(i in 1:3){
 
 plot(fitdata)
 
+library(densmix)
 
+set.seed(123)
+n_sim <- 200
+exp_norm_param_list <-
+  lapply(
+    seq_len(n_sim),
+    gen_exp_norm_params <- function(j){
+      list(
+        weight=runif(1,0.1,0.9),
+        lambda=runif(1,0.5,5),
+        mu=runif(1,7,25),
+        sigma=runif(1,1,2)
+      )
+    }
+  )
+
+exp_norm_gen_datasets_list <-
+  lapply(
+    exp_norm_param_list,
+    gexpnorm_list <- function(l){
+      gen_exp_normal(size=1000,parameters=l)
+    }
+  )
+
+exp_norm_fits_list <-
+  lapply(
+    exp_norm_gen_datasets_list,
+    gexpnorm_list <- function(d){
+      fit_exp_normal(d)
+    }
+  )
+
+exp_norm_true_param_df <- as.data.frame(
+  do.call(rbind, exp_norm_param_list)
+)
+
+exp_norm_fit_param_df <-
+  as.data.frame(
+    do.call(
+      rbind,
+      lapply(
+        exp_norm_fits_list,
+        get_param <- function(l){
+          l$parameters
+        }
+      )
+    )
+  )
+
+par(mfrow=c(2,2))
+cnames <- c("weight", "lambda", "mu", "sigma")
+for(cname in cnames){
+  plot(
+    exp_norm_true_param_df[[cname]],
+    exp_norm_fit_param_df[[cname]],
+    xlab = "True value",
+    ylab = "Fitted value",
+    main = cname,
+    pch = 19,
+    col = "purple"
+  )
+}
+
+exp_norm_fit_param_df[exp_norm_fit_param_df$mu<1,]
+
+par(mfrow=c(2,3))
+hist(exp_norm_gen_datasets_list[[48]],main=48)
+hist(exp_norm_gen_datasets_list[[63]],main=63)
+hist(exp_norm_gen_datasets_list[[70]],main=70)
+hist(exp_norm_gen_datasets_list[[116]],main=116)
+hist(exp_norm_gen_datasets_list[[148]],main=148)
+hist(exp_norm_gen_datasets_list[[186]],main=186)
 
