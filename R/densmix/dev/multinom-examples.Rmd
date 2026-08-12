@@ -1,0 +1,235 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/",
+  out.width = "100%"
+)
+```
+
+# densmix
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+Here we show several examples for densmix library related to exponential - normal density separation.
+
+## Generate data and fit mixtures
+
+We start by generating many datasets with set parameters and then using the library to decompose it. In this case we choose $lambda$, $mu$ and $sigma$ in a way that densities are well separated. 
+
+```{r genfit}
+library(densmix)
+
+set.seed(123)
+n_sim <- 200
+exp_norm_param_list <-
+  lapply(
+    seq_len(n_sim),
+    gen_exp_norm_params <- function(j){
+      list(
+        weight=runif(1,0.1,0.9),
+        lambda=runif(1,0.5,5),
+        mu=runif(1,7,25),
+        sigma=runif(1,1,2)
+      )
+    }
+  )
+
+exp_norm_gen_datasets_list <-
+  lapply(
+    exp_norm_param_list,
+    gexpnorm_list <- function(l){
+      gen_exp_normal(size=1000,parameters=l)
+    }
+  )
+
+exp_norm_fits_list <-
+  lapply(
+    exp_norm_gen_datasets_list,
+    gexpnorm_list <- function(d){
+      fit_exp_normal(d)
+    }
+  )
+
+exp_norm_true_param_df <- as.data.frame(
+  do.call(rbind, exp_norm_param_list)
+)
+
+exp_norm_fit_param_df <-
+  as.data.frame(
+    do.call(
+      rbind,
+      lapply(
+        exp_norm_fits_list,
+        get_param <- function(l){
+          l$parameters
+        }
+      )
+    )
+  )
+```
+
+## Scatterplots
+
+Next, we compare parameters by looking at scatterplots:
+
+```{r scatter}
+par(mfrow=c(2,2))
+cnames <- c("weight", "lambda", "mu", "sigma")
+for(cname in cnames){
+  plot(
+    exp_norm_true_param_df[[cname]],
+    exp_norm_fit_param_df[[cname]],
+    xlab = "True value",
+    ylab = "Fitted value",
+    main = cname,
+    pch = 19,
+    col = "purple"
+  )
+}
+```
+
+
+We see that in most of the cases apart from 6 points, algorithm worked well and parameters are similar to one another.
+
+Next, we check 6 suspicious points to discover that it happens when EM thinks that density close to zero is normal and provides a wrong fit:
+
+```{r checks1}
+exp_norm_fit_param_df[exp_norm_fit_param_df$mu<1,]
+
+par(mfrow=c(2,3))
+hist(exp_norm_gen_datasets_list[[48]],main=48)
+hist(exp_norm_gen_datasets_list[[63]],main=63)
+hist(exp_norm_gen_datasets_list[[70]],main=70)
+hist(exp_norm_gen_datasets_list[[116]],main=116)
+hist(exp_norm_gen_datasets_list[[148]],main=148)
+hist(exp_norm_gen_datasets_list[[186]],main=186)
+```
+
+We also check how in many iterations algorithm converges:
+
+```{r convergence}
+iter_fit <-
+  do.call(
+      rbind,
+      lapply(
+          exp_norm_fits_list,
+          get_param <- function(l){
+              l$iterations
+          }
+      )
+  )
+hist(iter_fit)
+sum(iter_fit<10)/length(iter_fit)
+```
+
+to see that it usually converges fast (around 90% of cases in under 10 iterations).
+
+## :ess well separated data
+
+Next we generate data that is less well separated
+
+```{r genfit2}
+set.seed(123)
+n_sim <- 200
+exp_norm_param_list <-
+  lapply(
+    seq_len(n_sim),
+    gen_exp_norm_params <- function(j){
+      list(
+        weight=runif(1,0.5,0.9),
+        lambda=runif(1,0.2,0.3),
+        mu=runif(1,10,20),
+        sigma=runif(1,1,2)
+      )
+    }
+  )
+
+exp_norm_gen_datasets_list <-
+  lapply(
+    exp_norm_param_list,
+    gexpnorm_list <- function(l){
+      gen_exp_normal(size=1000,parameters=l)
+    }
+  )
+
+exp_norm_fits_list <-
+  lapply(
+    exp_norm_gen_datasets_list,
+    gexpnorm_list <- function(d){
+      fit_exp_normal(d)
+    }
+  )
+
+exp_norm_true_param_df <- as.data.frame(
+  do.call(rbind, exp_norm_param_list)
+)
+
+exp_norm_fit_param_df <-
+  as.data.frame(
+    do.call(
+      rbind,
+      lapply(
+        exp_norm_fits_list,
+        get_param <- function(l){
+          l$parameters
+        }
+      )
+    )
+  )
+
+```
+
+Examples of raw data:
+
+```{r examples2}
+par(mfrow=c(2,3))
+hist(exp_norm_gen_datasets_list[[1]],main=1,breaks=30)
+hist(exp_norm_gen_datasets_list[[5]],main=5,breaks=30)
+hist(exp_norm_gen_datasets_list[[10]],main=10,breaks=30)
+hist(exp_norm_gen_datasets_list[[100]],main=100,breaks=30)
+hist(exp_norm_gen_datasets_list[[150]],main=150,breaks=30)
+hist(exp_norm_gen_datasets_list[[200]],main=200,breaks=30)
+```
+
+We can still however see that it converges well:
+
+```{r checks2}
+par(mfrow=c(2,2))
+cnames <- c("weight", "lambda", "mu", "sigma")
+for(cname in cnames){
+  plot(
+    exp_norm_true_param_df[[cname]],
+    exp_norm_fit_param_df[[cname]],
+    xlab = "True value",
+    ylab = "Fitted value",
+    main = cname,
+    pch = 19,
+    col = "purple"
+  )
+}
+```
+
+Though much slower:
+
+```{r convrate}
+iter_fit <-
+  do.call(
+    rbind,
+    lapply(
+      exp_norm_fits_list,
+      get_param <- function(l){
+        l$iterations
+      }
+    )
+  )
+hist(iter_fit)
+quantile(iter_fit)
+```
