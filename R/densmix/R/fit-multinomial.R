@@ -84,9 +84,14 @@ fit_multinomial <- function(data,
       weights = bayescolsums /n_obs
     )
 
-    profiles_delta <- mean(
-      abs(parameters[['mixture_profiles']] - new_parameters[['mixture_profiles']])
-      /abs(parameters[['mixture_profiles']]))
+    profiles_delta <- abs(
+      -1+
+      sqrt(sum(parameters[['mixture_profiles']]^2))/
+        sqrt(sum(new_parameters[['mixture_profiles']]^2))
+    )
+      # mean(
+      # abs(parameters[['mixture_profiles']] - new_parameters[['mixture_profiles']])
+      # /abs(parameters[['mixture_profiles']]))
 
     weights_delta <- mean(
       abs(parameters[['weights']] - new_parameters[['weights']])

@@ -1,49 +1,49 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "figures/",
-  out.width = "100%"
-)
-```
 
 # densmix
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-Here we show several examples for densmix library related to multinomial density separation.
+Here we show several examples for densmix library related to multinomial
+density separation.
 
 ## Generate data and fit mixtures
 
-We start by generating many datasets with fixed parameters and then using the library to decompose it. 
+We start by generating many datasets with fixed parameters and then
+using the library to decompose it.
 
-We fix number of components to be equal to $3$ and weights of components to be equal to $c(0.1,0.2,0.7)$.
+We fix number of components to be equal to $3$ and weights of components
+to be equal to $c(0.1,0.2,0.7)$.
 
-We generate component profiles from uniform Dirichlet distribution and then try to find them.
+We generate component profiles from uniform Dirichlet distribution and
+then try to find them.
 
-Number of buckets *n_buckets* mean that dataset will have 12 columns. 
+Number of buckets *n_buckets* mean that dataset will have 12 columns.
 
-Parameters *max_actions* and *prob_action* control how we fill in such dataset: 
+Parameters *max_actions* and *prob_action* control how we fill in such
+dataset:
 
-Each multinomial component is described 
+Each multinomial component is described
 
 - Vector of probabilities we take from Dirichlet
-- "Total number of objects" that "distributed" across 12 buckets. That "total number of objects" is generated once per component as one value from binomial distribution with (a) number of trials equal to *max_actions* and (b) probability of success equal to *prob_action*. 
+- “Total number of objects” that “distributed” across 12 buckets. That
+  “total number of objects” is generated once per component as one value
+  from binomial distribution with (a) number of trials equal to
+  *max_actions* and (b) probability of success equal to *prob_action*.
 
 You can think about dataset generatio as two step process:
 
-- Step 1. Define Multinomial: Generate vector of probabilities from uniform Dirichlet, generate total number of observations from binomial.
-- Step 2. Given fully defined multinomial component, generate $w[k]*N$ samples, where $w[k]$ is the weight of $k$th component and $N$ is required sample size (defined by $size$).
+- Step 1. Define Multinomial: Generate vector of probabilities from
+  uniform Dirichlet, generate total number of observations from
+  binomial.
+- Step 2. Given fully defined multinomial component, generate $w[k]*N$
+  samples, where $w[k]$ is the weight of $k$th component and $N$ is
+  required sample size (defined by $size$).
 
-
-```{r genfit}
+``` r
 library(densmix)
 
 set.seed(1234)
@@ -80,11 +80,13 @@ em_nm_fit_list <-
 Next, we compare labels:
 
 - Generator gives us true lables
-- We extract predicted labels as "argmax" from table with posterior Bayesian probabilities (that table is part of the EM-algorithm).
+- We extract predicted labels as “argmax” from table with posterior
+  Bayesian probabilities (that table is part of the EM-algorithm).
 
-Finally, as EM returns arbitrary labels, we use Hungarian algoritm to find "best" permutation of labels in the fit to match true labels.  
+Finally, as EM returns arbitrary labels, we use Hungarian algoritm to
+find “best” permutation of labels in the fit to match true labels.
 
-```{r labels}
+``` r
 em_mn_fit_labels_list <- lapply(
   em_nm_fit_list,
   getlabels <- function(l){
@@ -125,7 +127,6 @@ accuracy <-
   )
 ```
 
-
 Finally, we compare labels by checking accuracy of the fit.
 
 Accuracy is quite high (in most of the cases it is 100%).
@@ -133,16 +134,20 @@ Accuracy is quite high (in most of the cases it is 100%).
 Reasons are:
 
 - We have only 3 components, which is easy to decompose
-- Average total number of observations per row in the original dataset is 50 (controlled by max_actions*prob_action = 50
+- Average total number of observations per row in the original dataset
+  is 50 (controlled by max_actions\*prob_action = 50
 
-```{r accuracy}
+``` r
 par(mfrow=c(1,1))
 hist(accuracy,breaks=20)
 ```
 
-We also check weights of the components that were fixed at $c(0.1,0.2,0.7)$:
+<img src="figures/accuracy-1.png" alt="" width="100%" />
 
-```{r weights}
+We also check weights of the components that were fixed at
+$c(0.1,0.2,0.7)$:
+
+``` r
 weights <-
   do.call(
     rbind,
@@ -158,11 +163,14 @@ hist(weights[,2])
 hist(weights[,3])
 ```
 
+<img src="figures/weights-1.png" alt="" width="100%" />
+
 We also check how in many iterations algorithm converges:
 
-to see that it usually converges fast (around 75% of cases in under 20 iterations).
+to see that it usually converges fast (around 75% of cases in under 20
+iterations).
 
-```{r iter}
+``` r
 iter_vec <-
   unlist(
     lapply(
@@ -177,5 +185,12 @@ hist(
   main = "Iterations",
   xlab =  "Iterations"
 )
+```
+
+<img src="figures/iter-1.png" alt="" width="100%" />
+
+``` r
 quantile(iter_vec)
+#>     0%    25%    50%    75%   100% 
+#>    3.0    5.0    7.0   20.5 1001.0
 ```

@@ -13,7 +13,7 @@ get_dirichlet <- function(n, dparam){
            }
     )
 
-  if(is.null(dim(gamma_samples))){
+  if(n==1){
     gamma_samples / sum(gamma_samples)
   } else {
     gamma_samples / rowSums(gamma_samples)

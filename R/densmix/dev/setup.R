@@ -54,4 +54,9 @@ install.packages(
   type = "source"
 )
 
-devtools::build_readme()
+# install.packages("pak")
+# pak::pak("agehsbargswork-blip/data-science/R/densmix_0.1.0.tar.gz")
+
+pak::pkg_install(
+  "densmix=github::agehsbargswork-blip/data-science/R/densmix"
+)
