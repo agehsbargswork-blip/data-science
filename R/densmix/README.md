@@ -21,7 +21,9 @@ You can install the development version of densmix from
 
 ``` r
 # install.packages("pak")
-pak::pak("agehsbargswork-blip/data-science")
+pak::pkg_install(
+  "densmix=github::agehsbargswork-blip/data-science/R/densmix"
+)
 ```
 
 ## Example: exp-normal density
@@ -69,7 +71,7 @@ gendata <- gen_em_mn(size = 1000,
 
 
 fitdata <- fit_multinomial(gendata$data, control = list(verbose = TRUE))
-#> [2KIter: 1 {"weights":[0.3333,0.3333,0.3333],"profiles_delta":8.38,"weights_delta":0.8813}[2KIter: 2 {"weights":[0.0695,0.1565,0.774],"profiles_delta":0.3747,"weights_delta":0.2064}[2KIter: 3 {"weights":[0.0946,0.186,0.7194],"profiles_delta":0.0279,"weights_delta":0.0182}[2KIter: 4 {"weights":[0.09,0.186,0.724],"profiles_delta":1.9777e-07,"weights_delta":1.1348e-07}
+#> [2KIter: 1 {"weights":[0.3333,0.3333,0.3333],"profiles_delta":0.0868,"weights_delta":0.8813}[2KIter: 2 {"weights":[0.0695,0.1565,0.774],"profiles_delta":0.0771,"weights_delta":0.2064}[2KIter: 3 {"weights":[0.0946,0.186,0.7194],"profiles_delta":0.0075,"weights_delta":0.0182}[2KIter: 4 {"weights":[0.09,0.186,0.724],"profiles_delta":3.6292e-08,"weights_delta":1.1348e-07}
 
 par(mfrow=c(3,3))
 for(i in 1:3){
