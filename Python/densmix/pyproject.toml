@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "densmix"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Aleksandrs Gehsbargs", email = "agehsbargs.work@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+dependencies = [
+  "numpy",
+  "seaborn",
+  "scipy",
+  "matplotlib",
+  "scipy-stubs"
+]
+
+[project.urls]
+Documentation = "https://github.com/Aleksandrs Gehsbargs/densmix#readme"
+Issues = "https://github.com/Aleksandrs Gehsbargs/densmix/issues"
+Source = "https://github.com/Aleksandrs Gehsbargs/densmix"
+
+[tool.hatch.version]
+path = "src/densmix/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/densmix tests}"
+
+[tool.coverage.run]
+source_pkgs = ["densmix", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/densmix/__about__.py",
+]
+
+[tool.coverage.paths]
+densmix = ["src/densmix", "*/densmix/src/densmix"]
+tests = ["tests", "*/densmix/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
