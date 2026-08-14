@@ -59,28 +59,32 @@ import numpy as np
 # default_start = starter.get_start()
 # print(default_start)
 
-from densmix.generator import Generator
-from scipy.stats import multinomial
+# from densmix.generator import Generator
+# from scipy.stats import multinomial
+#
+# dp = {
+#     "n_components": 4,
+#     "n_buckets": 8,
+#     "dirichlet": np.repeat(1, 8),
+#     "component_weights": [0.1, 0.2, 0.3, 0.4],
+#     "n_actions_per_bucket": {
+#         "max_actions": 300,
+#         "prob_action": 0.2
+#     }
+# }
+# g = Generator(size=2000, parameters=dp)
+# mndata = g.gen_multinom()
+# print(mndata.keys())
+#
+# data=mndata["data"]
+#
+# from densmix.models import Models
+#
+# m = Models(data=mndata["data"])
+# res = m.fit_multinom(n_components=4)
+# print(res["iterations"])
+# print(res["weights"])
 
-dp = {
-    "n_components": 4,
-    "n_buckets": 8,
-    "dirichlet": np.repeat(1, 8),
-    "component_weights": [0.1, 0.2, 0.3, 0.4],
-    "n_actions_per_bucket": {
-        "max_actions": 300,
-        "prob_action": 0.2
-    }
-}
-g = Generator(size=2000, parameters=dp)
-mndata = g.gen_multinom()
-print(mndata.keys())
 
-data=mndata["data"]
 
-from densmix.models import Models
 
-m = Models(data=mndata["data"])
-res = m.fit_multinom(n_components=4)
-print(res["iterations"])
-print(res["weights"])
