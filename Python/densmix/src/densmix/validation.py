@@ -18,6 +18,6 @@ class Checker:
         verified = NULL
         if self.model_name == "exp-norm":
             verified = self.validate_exp_norm_parameters()
-        elif self.model_name == "multinomial":
+        elif self.model_name == "multinom":
             verified = self.validate_multinom_parameters()
         return verified

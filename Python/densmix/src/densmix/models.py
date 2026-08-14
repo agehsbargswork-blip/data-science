@@ -4,36 +4,47 @@
 import numpy as np
 from .validation import Checker
 from .control import Controller
-from scipy.stats import expon, norm
+from .start import Starter
+from scipy.stats import expon, norm, multinomial
 
 class Models:
-    def __init__(self, data, control = {}, start = None):
+
+    def _calc_exp_norm_densities(self, parameters):
+        expd = parameters["weight"] * expon.pdf(
+            self.data,
+            scale=1 / parameters["lambda"]
+        )
+        normd = (1 - parameters["weight"]) * norm.pdf(
+            self.data,
+            loc=parameters["mu"],
+            scale=parameters["sigma"]
+        )
+
+        return expd, normd
+
+    def __init__(self, data, control = None, start = None):
         self.data = data
+
+        if start is None:
+            start = {}
         self.start = start
+
+        if control is None:
+            control = {}
         self.control = control
 
     def fit_exp_norm(self):
 
-        if self.start is None:
-            qqs = np.quantile(self.data, [0.25, 0.5, 0.75])
-            self.start = {
-                "weight": 0.5,
-                "lambda": qqs[0],
-                "mu": qqs[2],
-                "sigma": np.std(self.data[self.data>qqs[1]])
-            }
+        starter = Starter(model_name="exp-norm", data = self.data)
+        default_start = starter.get_start()
+        start = default_start | self.start
 
-        checker = Checker(model_name="exp-norm", start=self.start)
+        checker = Checker(model_name="exp-norm", start=start)
         parameters = checker.validate_parameters()
 
-        controller = Controller()
+        controller = Controller(model_name="exp-norm")
         default_control = controller.get_em_controls()
         control = default_control | self.control
-        control = control | {
-            "min_lambda" : 1e-3,
-            "min_mu": 1e-3,
-            "min_sigma" : 1e-3
-        }
 
         data_sum = np.sum(self.data)
         n = len(self.data)
@@ -43,18 +54,12 @@ class Models:
 
         while i <= control["max_iter"]:
 
-            expd = parameters["weight"] * expon.pdf(self.data,
-                                                    scale=1/parameters["lambda"]
-                                                    )
-            normd = (1-parameters["weight"]) * norm.pdf(self.data,
-                                                        loc=parameters["mu"],
-                                                        scale=parameters["sigma"]
-                                                        )
-            loglik.append(sum(np.log(expd+normd)))
+            expd, normd = self._calc_exp_norm_densities(parameters)
+            loglik.append(np.sum(np.log(expd+normd)))
 
             bayes_probs = expd / (expd + normd)
-            total_prob = sum(bayes_probs)
-            weighted_data = sum(bayes_probs * self.data)
+            total_prob = np.sum(bayes_probs)
+            weighted_data = np.sum(bayes_probs * self.data)
 
             new_parameters = {
                 "weight": total_prob / n,
@@ -63,7 +68,7 @@ class Models:
             }
 
             new_parameters["sigma"] = np.sqrt(
-                sum((1 - bayes_probs) * (self.data - new_parameters["mu"]) ** 2) / (n - total_prob)
+                np.sum((1 - bayes_probs) * (self.data - new_parameters["mu"]) ** 2) / (n - total_prob)
             )
 
             if (
@@ -76,20 +81,15 @@ class Models:
                 raise ValueError("Min tolerance for parameters reached")
 
             deltas = [ abs(parameters[k] - new_parameters[k])/abs(parameters[k]) for k in parameters]
-            total_delta = sum(deltas)
+            total_delta = np.sum(deltas)
             parameters = new_parameters.copy()
             i = i + 1
 
             if total_delta < control["tolerance"]:
                 converged = True
-                expd = parameters["weight"] * expon.pdf(self.data,
-                                                        scale=1 / parameters["lambda"]
-                                                        )
-                normd = (1 - parameters["weight"]) * norm.pdf(self.data,
-                                                              loc=parameters["mu"],
-                                                              scale=parameters["sigma"]
-                                                              )
-                loglik.append(sum(np.log(expd + normd)))
+                expd, normd = self._calc_exp_norm_densities(parameters)
+                bayes_probs = expd / (expd + normd)
+                loglik.append(np.sum(np.log(expd + normd)))
 
                 break
 
@@ -108,4 +108,94 @@ class Models:
         }
 
         return res
+
+    def fit_multinom(self, n_components):
+
+        controller = Controller(model_name="multinom")
+        default_control = controller.get_em_controls()
+        control = default_control | self.control
+
+        n_buckets = self.data.shape[1]
+        n_obs = self.data.shape[0]
+        starter = Starter(model_name="multinom",
+                          n_components = n_components,
+                          n_buckets = n_buckets)
+        default_start = starter.get_start()
+        start = default_start | self.start
+
+        checker = Checker(model_name="multinom", start=start)
+        parameters = checker.validate_parameters()
+        converged = False
+
+        for i in np.arange(control["max_iter"]):
+            # E-step
+            bayes_probs_tmp = [
+                parameters["weights"][j]
+                * multinomial.pmf(
+                    self.data,
+                    n=np.sum(self.data, axis=1),
+                    p=parameters["mixture_profiles"][:, j]
+                )
+                for j in range(n_components)
+            ]
+            bayes_probs_tmp = np.column_stack(bayes_probs_tmp)
+
+            bayes_probs = (
+                    bayes_probs_tmp
+                    / np.sum(bayes_probs_tmp, axis=1, keepdims=True)
+            )
+
+            bayes_col_sums = np.sum(bayes_probs, axis=0)
+
+            mixture_profiles_tmp = []
+
+            for j in range(n_components):
+                z = np.sum(
+                    self.data * bayes_probs[:, j, np.newaxis],
+                    axis=0
+                )
+                mixture_profiles_tmp.append(z / np.sum(z))
+
+            new_parameters = {
+                "mixture_profiles": np.column_stack(mixture_profiles_tmp),
+                "weights": bayes_col_sums / n_obs
+            }
+
+            profiles_delta = np.abs(
+                -1
+                + np.sqrt(np.sum(parameters["mixture_profiles"] ** 2))
+                / np.sqrt(np.sum(new_parameters["mixture_profiles"] ** 2))
+            )
+
+            weights_delta = np.mean(
+                np.abs(parameters["weights"] - new_parameters["weights"])
+                / np.abs(parameters["weights"])
+            )
+
+            total_delta = profiles_delta + weights_delta
+            parameters = new_parameters
+
+            if total_delta < control['tolerance']:
+                converged = True
+                break
+
+        res = {
+            "mixture_profiles" : parameters["mixture_profiles"],
+            "weights": parameters["weights"],
+            "converged": converged,
+            "bayes_probs": bayes_probs,
+            "iterations": i,
+            "profiles_delta": profiles_delta
+        }
+
+        return res
+
+
+  #
+  #
+  # datacolsums <- colSums(data)
+  # totalobs <- sum(data)
+  #
+  #
+  # parameters <- validate_multinom_parameters(start)
 
