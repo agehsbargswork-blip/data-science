@@ -10,10 +10,20 @@ from .api import (
 )
 from .generator import Generator
 from .models import Models
+from .results import (
+    ExpNormalFit,
+    ExpNormalSimulation,
+    MultinomialFit,
+    MultinomialSimulation,
+)
 
 __all__ = [
+    "ExpNormalFit",
+    "ExpNormalSimulation",
     "Generator",
     "Models",
+    "MultinomialFit",
+    "MultinomialSimulation",
     "__version__",
     "fit_exp_normal",
     "fit_multinomial",
