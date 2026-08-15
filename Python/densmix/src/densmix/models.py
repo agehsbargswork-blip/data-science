@@ -39,7 +39,11 @@ class Models:
         default_start = starter.get_start()
         start = default_start | self.start
 
-        checker = Checker(model_name="exp-norm", start=start)
+        checker = Checker(
+            model_name="exp-norm",
+            check_type="fit",
+            start=start
+        )
         parameters = checker.validate_parameters()
 
         controller = Controller(model_name="exp-norm")
@@ -123,7 +127,11 @@ class Models:
         default_start = starter.get_start()
         start = default_start | self.start
 
-        checker = Checker(model_name="multinom", start=start)
+        checker = Checker(
+            model_name="multinom",
+            check_type="fit",
+            start=start
+        )
         parameters = checker.validate_parameters()
         converged = False
 

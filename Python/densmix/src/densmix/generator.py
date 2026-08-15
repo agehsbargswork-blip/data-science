@@ -46,7 +46,11 @@ class Generator:
         default_params = get_default_exp_norm_params()
         self.parameters = default_params | self.parameters
 
-        checker = Checker(model_name="exp-norm", start=self.parameters)
+        checker = Checker(
+            model_name="exp-norm",
+            check_type="gen",
+            start=self.parameters
+        )
         parameters = checker.validate_parameters()
 
         # in numpy binomial "size" is output size which we need as 1
@@ -69,7 +73,11 @@ class Generator:
         default_params = get_default_mn_params()
         self.parameters = default_params | self.parameters
 
-        checker = Checker(model_name="multinom", start=self.parameters)
+        checker = Checker(
+            model_name="multinom",
+            check_type="gen",
+            start=self.parameters
+        )
         parameters = checker.validate_parameters()
 
         mixture_profiles = get_dirichlet(

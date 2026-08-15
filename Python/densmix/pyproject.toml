@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "densmix"
 dynamic = ["version"]
-description = ''
+description = 'Libary for densimity mixture identification.'
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
@@ -56,6 +56,10 @@ omit = [
   "src/densmix/__about__.py",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
 [tool.coverage.paths]
 densmix = ["src/densmix", "*/densmix/src/densmix"]
 tests = ["tests", "*/densmix/tests"]
@@ -66,3 +70,4 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
