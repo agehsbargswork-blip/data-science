@@ -5,16 +5,17 @@ import numpy as np
 from .validation import Checker
 from .control import Controller
 from .start import Starter
+from scipy.special import logsumexp
 from scipy.stats import expon, norm, multinomial
 
 class Models:
 
-    def _calc_exp_norm_densities(self, parameters):
-        expd = parameters["weight"] * expon.pdf(
+    def _calc_exp_norm_log_densities(self, parameters):
+        expd = np.log(parameters["weight"]) + expon.logpdf(
             self.data,
             scale=1 / parameters["lambda"]
         )
-        normd = (1 - parameters["weight"]) * norm.pdf(
+        normd = np.log(1 - parameters["weight"]) + norm.logpdf(
             self.data,
             loc=parameters["mu"],
             scale=parameters["sigma"]
@@ -58,10 +59,14 @@ class Models:
 
         while i <= control["max_iter"]:
 
-            expd, normd = self._calc_exp_norm_densities(parameters)
-            loglik.append(np.sum(np.log(expd+normd)))
+            expd, normd = self._calc_exp_norm_log_densities(parameters)
+            total_log_density = logsumexp(
+                np.column_stack((expd, normd)),
+                axis=1
+            )
+            loglik.append(np.sum(total_log_density))
 
-            bayes_probs = expd / (expd + normd)
+            bayes_probs = np.exp(expd - total_log_density)
             total_prob = np.sum(bayes_probs)
             weighted_data = np.sum(bayes_probs * self.data)
 
@@ -91,9 +96,13 @@ class Models:
 
             if total_delta < control["tolerance"]:
                 converged = True
-                expd, normd = self._calc_exp_norm_densities(parameters)
-                bayes_probs = expd / (expd + normd)
-                loglik.append(np.sum(np.log(expd + normd)))
+                expd, normd = self._calc_exp_norm_log_densities(parameters)
+                total_log_density = logsumexp(
+                    np.column_stack((expd, normd)),
+                    axis=1
+                )
+                bayes_probs = np.exp(expd - total_log_density)
+                loglik.append(np.sum(total_log_density))
 
                 break
 
@@ -138,8 +147,8 @@ class Models:
         for i in np.arange(control["max_iter"]):
             # E-step
             bayes_probs_tmp = [
-                parameters["weights"][j]
-                * multinomial.pmf(
+                np.log(parameters["weights"][j])
+                + multinomial.logpmf(
                     self.data,
                     n=np.sum(self.data, axis=1),
                     p=parameters["mixture_profiles"][:, j]
@@ -148,9 +157,9 @@ class Models:
             ]
             bayes_probs_tmp = np.column_stack(bayes_probs_tmp)
 
-            bayes_probs = (
+            bayes_probs = np.exp(
                     bayes_probs_tmp
-                    / np.sum(bayes_probs_tmp, axis=1, keepdims=True)
+                    - logsumexp(bayes_probs_tmp, axis=1, keepdims=True)
             )
 
             bayes_col_sums = np.sum(bayes_probs, axis=0)
@@ -206,4 +215,3 @@ class Models:
   #
   #
   # parameters <- validate_multinom_parameters(start)
-
