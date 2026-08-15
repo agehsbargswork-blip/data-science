@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "densmix"
 dynamic = ["version"]
-description = 'Libary for densimity mixture identification.'
+description = "Tools for simulating and fitting density mixture models."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -16,7 +16,6 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
