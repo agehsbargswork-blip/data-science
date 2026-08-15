@@ -85,6 +85,60 @@ import numpy as np
 # print(res["iterations"])
 # print(res["weights"])
 
+import numpy as np
+#
+# from densmix.generator import Generator
+#
+# np.random.seed(123)
+#
+# MULTINOM_PARAMS = {
+#     "n_components": 3,
+#     "n_buckets": 12,
+#     "dirichlet": np.ones(12),
+#     "component_weights": np.array([0.1, 0.2, 0.7]),
+#     "n_actions_per_bucket": {
+#         "max_actions": 100,
+#         "prob_action": 0.5,
+#     },
+# }
+#
+# result = Generator(
+#     size=500,
+#     parameters=MULTINOM_PARAMS
+# ).gen_multinom()
+#
+# data = result["data"]
+# labels = result["component_labels"]
+# mixture_profiles = result["mixture_profiles"]
+# print(mixture_profiles.shape)
+
+import numpy as np
+from scipy.optimize import linear_sum_assignment
+
+from densmix.models import Models
+from densmix.generator import Generator
 
 
+MULTINOM_PARAMS = {
+    "n_components": 3,
+    "n_buckets": 12,
+    "dirichlet": np.repeat(1, 12),
+    "component_weights": [0.1, 0.2, 0.7],
+    "n_actions_per_bucket": {
+        "max_actions": 300,
+        "prob_action": 0.2,
+    },
+}
 
+generated = Generator(
+        size=1000,
+        parameters=MULTINOM_PARAMS,
+).gen_multinom()
+
+result = Models(
+    data=generated["data"],
+).fit_multinom(
+    n_components=MULTINOM_PARAMS["n_components"],
+)
+
+print(result["converged"])
