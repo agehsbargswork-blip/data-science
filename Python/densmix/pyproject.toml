@@ -7,7 +7,7 @@ name = "densmix"
 dynamic = ["version"]
 description = 'Libary for densimity mixture identification.'
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "MIT"
 keywords = []
 authors = [
@@ -27,16 +27,19 @@ classifiers = [
 
 dependencies = [
   "numpy",
-  "seaborn",
   "scipy",
+]
+
+[project.optional-dependencies]
+docs = [
   "matplotlib",
-  "scipy-stubs"
+  "pandas",
 ]
 
 [project.urls]
-Documentation = "https://github.com/Aleksandrs Gehsbargs/densmix#readme"
-Issues = "https://github.com/Aleksandrs Gehsbargs/densmix/issues"
-Source = "https://github.com/Aleksandrs Gehsbargs/densmix"
+Documentation = "https://github.com/agehsbargswork-blip/data-science/tree/main/Python/densmix/docs"
+Issues = "https://github.com/agehsbargswork-blip/data-science/issues"
+Source = "https://github.com/agehsbargswork-blip/data-science/tree/main/Python/densmix"
 
 [tool.hatch.version]
 path = "src/densmix/__about__.py"
@@ -44,7 +47,9 @@ path = "src/densmix/__about__.py"
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
+  "scipy-stubs",
 ]
+
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/densmix tests}"
 
