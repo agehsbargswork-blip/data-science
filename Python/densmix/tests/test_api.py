@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import densmix.api as api
 from densmix import (
@@ -44,7 +45,7 @@ def test_fit_exp_normal_returns_structured_result(monkeypatch):
 
     monkeypatch.setattr(api, "Models", FakeModels)
 
-    data = object()
+    data = [0.5, 9.5]
     control = {"max_iter": 50}
     start = {"weight": 0.4}
     result = fit_exp_normal(data, control=control, start=start)
@@ -57,11 +58,11 @@ def test_fit_exp_normal_returns_structured_result(monkeypatch):
     assert result.responsibilities is raw_result["bayes_probs"]
     assert result.log_likelihood_history is raw_result["loglik"]
     assert result.log_likelihood == -10.0
-    assert calls["init"] == {
-        "data": data,
-        "control": control,
-        "start": start,
-    }
+    assert isinstance(calls["init"]["data"], np.ndarray)
+    np.testing.assert_array_equal(calls["init"]["data"], data)
+    assert calls["init"]["control"] == control
+    assert calls["init"]["control"] is not control
+    assert calls["init"]["start"] is start
 
 
 def test_fit_multinomial_returns_structured_result(monkeypatch):
@@ -89,7 +90,7 @@ def test_fit_multinomial_returns_structured_result(monkeypatch):
 
     monkeypatch.setattr(api, "Models", FakeModels)
 
-    data = object()
+    data = [[2, 1, 0], [0, 3, 1]]
     result = fit_multinomial(data, n_components=3)
 
     assert isinstance(result, MultinomialFit)
@@ -103,6 +104,8 @@ def test_fit_multinomial_returns_structured_result(monkeypatch):
     assert result.log_likelihood_history is None
     assert result.log_likelihood is None
     assert calls["n_components"] == 3
+    assert isinstance(calls["init"]["data"], np.ndarray)
+    np.testing.assert_array_equal(calls["init"]["data"], data)
 
 
 def test_simulate_exp_normal_returns_structured_result(monkeypatch):
@@ -186,3 +189,58 @@ def test_public_api_end_to_end_returns_structured_results():
     assert multinomial_simulation.data.shape == (500, 12)
     assert multinomial_simulation.labels.shape == (500,)
     assert multinomial_fit.responsibilities.shape == (500, 3)
+
+
+@pytest.mark.parametrize(
+    ("simulate", "invalid_size"),
+    [
+        (simulate_exp_normal, 0),
+        (simulate_exp_normal, 1.5),
+        (simulate_multinomial, -1),
+        (simulate_multinomial, True),
+    ],
+)
+def test_simulation_public_api_rejects_invalid_size(simulate, invalid_size):
+    with pytest.raises(ValueError):
+        simulate(size=invalid_size)
+
+
+@pytest.mark.parametrize(
+    "invalid_data",
+    [
+        [],
+        [[0.1, 1.2]],
+        [0.1, np.nan],
+    ],
+)
+def test_fit_exp_normal_public_api_rejects_invalid_data(invalid_data):
+    with pytest.raises(ValueError):
+        fit_exp_normal(invalid_data)
+
+
+@pytest.mark.parametrize(
+    "invalid_data",
+    [
+        [],
+        [1, 2, 3],
+        [[1, -1], [2, 3]],
+        [[1, 0.5], [2, 3]],
+    ],
+)
+def test_fit_multinomial_public_api_rejects_invalid_data(invalid_data):
+    with pytest.raises(ValueError):
+        fit_multinomial(invalid_data, n_components=2)
+
+
+def test_fit_exp_normal_public_api_rejects_invalid_control():
+    with pytest.raises(ValueError):
+        fit_exp_normal([0.1, 1.2], control={"max_iter": 0})
+
+
+def test_fit_multinomial_public_api_rejects_invalid_control():
+    with pytest.raises(ValueError):
+        fit_multinomial(
+            [[1, 2], [2, 1]],
+            n_components=2,
+            control={"min_weight": 1e-4},
+        )

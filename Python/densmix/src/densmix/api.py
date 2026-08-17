@@ -9,10 +9,25 @@ from .results import (
     MultinomialFit,
     MultinomialSimulation,
 )
+from .validation import (
+    validate_em_controls,
+    validate_exp_norm_data,
+    validate_multinom_data,
+    validate_size,
+)
+
+
+def _validate_control(control, model_name):
+    if control is None:
+        return None
+    return validate_em_controls(control, model_name=model_name)
 
 
 def fit_exp_normal(data, control=None, start=None):
     """Fit an exponential-normal mixture model."""
+    data = validate_exp_norm_data(data)
+    control = _validate_control(control, model_name="exp-norm")
+
     result = Models(
         data=data,
         control=control,
@@ -33,6 +48,9 @@ def fit_exp_normal(data, control=None, start=None):
 
 def fit_multinomial(data, n_components, control=None, start=None):
     """Fit a multinomial mixture model."""
+    data = validate_multinom_data(data)
+    control = _validate_control(control, model_name="multinom")
+
     result = Models(
         data=data,
         control=control,
@@ -57,6 +75,8 @@ def fit_multinomial(data, n_components, control=None, start=None):
 
 def simulate_exp_normal(size, parameters=None):
     """Simulate observations from an exponential-normal mixture."""
+    size = validate_size(size)
+
     generator = Generator(
         size=size,
         parameters=parameters,
@@ -71,6 +91,8 @@ def simulate_exp_normal(size, parameters=None):
 
 def simulate_multinomial(size, parameters=None):
     """Simulate observations from a multinomial mixture."""
+    size = validate_size(size)
+
     generator = Generator(
         size=size,
         parameters=parameters,
