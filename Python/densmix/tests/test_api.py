@@ -74,6 +74,7 @@ def test_fit_multinomial_returns_structured_result(monkeypatch):
         "bayes_probs": np.ones((2, 3)) / 3,
         "iterations": np.int64(5),
         "profiles_delta": 1e-6,
+        "loglik": [-30.0, -20.0],
     }
 
     class FakeModels:
@@ -101,8 +102,8 @@ def test_fit_multinomial_returns_structured_result(monkeypatch):
     assert result.converged is True
     assert result.n_iter == 5
     assert result.responsibilities is raw_result["bayes_probs"]
-    assert result.log_likelihood_history is None
-    assert result.log_likelihood is None
+    assert result.log_likelihood_history is raw_result["loglik"]
+    assert result.log_likelihood == -20.0
     assert calls["n_components"] == 3
     assert isinstance(calls["init"]["data"], np.ndarray)
     np.testing.assert_array_equal(calls["init"]["data"], data)
@@ -189,6 +190,12 @@ def test_public_api_end_to_end_returns_structured_results():
     assert multinomial_simulation.data.shape == (500, 12)
     assert multinomial_simulation.labels.shape == (500,)
     assert multinomial_fit.responsibilities.shape == (500, 3)
+    assert len(multinomial_fit.log_likelihood_history) >= 2
+    assert np.all(np.isfinite(multinomial_fit.log_likelihood_history))
+    assert (
+        multinomial_fit.log_likelihood
+        == multinomial_fit.log_likelihood_history[-1]
+    )
 
 
 @pytest.mark.parametrize(

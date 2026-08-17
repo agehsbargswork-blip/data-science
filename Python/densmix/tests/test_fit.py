@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.optimize import linear_sum_assignment
+from scipy.special import logsumexp
+from scipy.stats import multinomial
 
 from densmix.models import Models
 from densmix.generator import Generator
@@ -156,6 +158,29 @@ def test_multinom_fit():
         result["weights"].sum(),
         1.0,
         atol=1e-8,
+    )
+
+    assert len(result["loglik"]) == result["iterations"] + 2
+    assert np.all(np.isfinite(result["loglik"]))
+    assert np.all(np.diff(result["loglik"]) >= -1e-8)
+
+    final_component_log_probabilities = np.column_stack([
+        np.log(result["weights"][j])
+        + multinomial.logpmf(
+            generated["data"],
+            n=np.sum(generated["data"], axis=1),
+            p=result["mixture_profiles"][:, j],
+        )
+        for j in range(MULTINOM_PARAMS["n_components"])
+    ])
+    expected_final_log_likelihood = np.sum(logsumexp(
+        final_component_log_probabilities,
+        axis=1,
+    ))
+
+    assert np.isclose(
+        result["loglik"][-1],
+        expected_final_log_likelihood,
     )
 
     predicted_labels = np.argmax(

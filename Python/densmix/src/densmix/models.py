@@ -23,6 +23,17 @@ class Models:
 
         return expd, normd
 
+    def _calc_multinom_log_probabilities(self, parameters, n_components):
+        return np.column_stack([
+            np.log(parameters["weights"][j])
+            + multinomial.logpmf(
+                self.data,
+                n=np.sum(self.data, axis=1),
+                p=parameters["mixture_profiles"][:, j]
+            )
+            for j in range(n_components)
+        ])
+
     def __init__(self, data, control = None, start = None):
         self.data = data
 
@@ -143,23 +154,24 @@ class Models:
         )
         parameters = checker.validate_parameters()
         converged = False
+        loglik = []
 
         for i in np.arange(control["max_iter"]):
             # E-step
-            bayes_probs_tmp = [
-                np.log(parameters["weights"][j])
-                + multinomial.logpmf(
-                    self.data,
-                    n=np.sum(self.data, axis=1),
-                    p=parameters["mixture_profiles"][:, j]
-                )
-                for j in range(n_components)
-            ]
-            bayes_probs_tmp = np.column_stack(bayes_probs_tmp)
+            bayes_probs_tmp = self._calc_multinom_log_probabilities(
+                parameters,
+                n_components
+            )
+            total_log_probability = logsumexp(
+                bayes_probs_tmp,
+                axis=1,
+                keepdims=True
+            )
+            loglik.append(float(np.sum(total_log_probability)))
 
             bayes_probs = np.exp(
                     bayes_probs_tmp
-                    - logsumexp(bayes_probs_tmp, axis=1, keepdims=True)
+                    - total_log_probability
             )
 
             bayes_col_sums = np.sum(bayes_probs, axis=0)
@@ -196,13 +208,23 @@ class Models:
                 converged = True
                 break
 
+        final_log_probabilities = self._calc_multinom_log_probabilities(
+            parameters,
+            n_components
+        )
+        loglik.append(float(np.sum(logsumexp(
+            final_log_probabilities,
+            axis=1
+        ))))
+
         res = {
             "mixture_profiles" : parameters["mixture_profiles"],
             "weights": parameters["weights"],
             "converged": converged,
             "bayes_probs": bayes_probs,
             "iterations": i,
-            "profiles_delta": profiles_delta
+            "profiles_delta": profiles_delta,
+            "loglik": loglik
         }
 
         return res
