@@ -163,6 +163,12 @@ def test_multinom_fit():
     assert len(result["loglik"]) == result["iterations"] + 2
     assert np.all(np.isfinite(result["loglik"]))
     assert np.all(np.diff(result["loglik"]) >= -1e-8)
+    assert "profiles_delta" not in result
+    assert np.isclose(
+        result["loglik_delta"],
+        np.abs(result["loglik"][-1] - result["loglik"][-2])
+        / np.abs(result["loglik"][-2]),
+    )
 
     final_component_log_probabilities = np.column_stack([
         np.log(result["weights"][j])

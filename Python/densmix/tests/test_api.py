@@ -73,7 +73,7 @@ def test_fit_multinomial_returns_structured_result(monkeypatch):
         "converged": True,
         "bayes_probs": np.ones((2, 3)) / 3,
         "iterations": np.int64(5),
-        "profiles_delta": 1e-6,
+        "loglik_delta": 1e-6,
         "loglik": [-30.0, -20.0],
     }
 
@@ -102,6 +102,7 @@ def test_fit_multinomial_returns_structured_result(monkeypatch):
     assert result.converged is True
     assert result.n_iter == 5
     assert result.responsibilities is raw_result["bayes_probs"]
+    assert result.log_likelihood_delta == raw_result["loglik_delta"]
     assert result.log_likelihood_history is raw_result["loglik"]
     assert result.log_likelihood == -20.0
     assert calls["n_components"] == 3

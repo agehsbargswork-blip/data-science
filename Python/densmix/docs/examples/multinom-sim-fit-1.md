@@ -1,4 +1,4 @@
-## One example sim and fir
+## One example sim and fit
 
 
 ```python
@@ -62,8 +62,8 @@ print("Responsibilities shape:", fit.responsibilities.shape)
 ```
 
     Converged: True
-    Iterations: 97
-    Fitted weights: [0.68544777 0.09873072 0.21582151]
+    Iterations: 11
+    Fitted weights: [0.68544881 0.09873076 0.21582042]
     Fitted profile shape: (12, 3)
     Responsibilities shape: (1000, 3)
     

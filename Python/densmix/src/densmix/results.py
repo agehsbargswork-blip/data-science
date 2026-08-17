@@ -37,7 +37,7 @@ class MultinomialFit:
     converged: bool
     n_iter: int
     responsibilities: np.ndarray
-    profiles_delta: float
+    log_likelihood_delta: float
     log_likelihood_history: Optional[list] = None
 
     @property

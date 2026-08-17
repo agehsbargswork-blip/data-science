@@ -69,7 +69,7 @@ def fit_multinomial(data, n_components, control=None, start=None):
         converged=result["converged"],
         n_iter=int(result["iterations"]),
         responsibilities=result["bayes_probs"],
-        profiles_delta=result["profiles_delta"],
+        log_likelihood_delta=result["loglik_delta"],
         log_likelihood_history=result["loglik"],
     )
 
