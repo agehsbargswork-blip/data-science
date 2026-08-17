@@ -154,21 +154,19 @@ class Models:
         )
         parameters = checker.validate_parameters()
         converged = False
-        loglik = []
+        bayes_probs_tmp = self._calc_multinom_log_probabilities(
+            parameters,
+            n_components
+        )
+        total_log_probability = logsumexp(
+            bayes_probs_tmp,
+            axis=1,
+            keepdims=True
+        )
+        loglik = [float(np.sum(total_log_probability))]
 
         for i in np.arange(control["max_iter"]):
             # E-step
-            bayes_probs_tmp = self._calc_multinom_log_probabilities(
-                parameters,
-                n_components
-            )
-            total_log_probability = logsumexp(
-                bayes_probs_tmp,
-                axis=1,
-                keepdims=True
-            )
-            loglik.append(float(np.sum(total_log_probability)))
-
             bayes_probs = np.exp(
                     bayes_probs_tmp
                     - total_log_probability
@@ -190,32 +188,38 @@ class Models:
                 "weights": bayes_col_sums / n_obs
             }
 
-            profiles_delta = np.abs(
-                -1
-                + np.sqrt(np.sum(parameters["mixture_profiles"] ** 2))
-                / np.sqrt(np.sum(new_parameters["mixture_profiles"] ** 2))
+            new_bayes_probs_tmp = self._calc_multinom_log_probabilities(
+                new_parameters,
+                n_components
             )
+            new_total_log_probability = logsumexp(
+                new_bayes_probs_tmp,
+                axis=1,
+                keepdims=True
+            )
+            new_loglik = float(np.sum(new_total_log_probability))
+            loglik_delta = np.abs(
+                new_loglik - loglik[-1]
+            ) / max(
+                np.abs(loglik[-1]),
+                np.finfo(float).eps
+            )
+            loglik.append(new_loglik)
 
             weights_delta = np.mean(
                 np.abs(parameters["weights"] - new_parameters["weights"])
                 / np.abs(parameters["weights"])
             )
 
-            total_delta = profiles_delta + weights_delta
+            total_delta = loglik_delta + weights_delta
             parameters = new_parameters
 
             if total_delta < control['tolerance']:
                 converged = True
                 break
 
-        final_log_probabilities = self._calc_multinom_log_probabilities(
-            parameters,
-            n_components
-        )
-        loglik.append(float(np.sum(logsumexp(
-            final_log_probabilities,
-            axis=1
-        ))))
+            bayes_probs_tmp = new_bayes_probs_tmp
+            total_log_probability = new_total_log_probability
 
         res = {
             "mixture_profiles" : parameters["mixture_profiles"],
@@ -223,7 +227,7 @@ class Models:
             "converged": converged,
             "bayes_probs": bayes_probs,
             "iterations": i,
-            "profiles_delta": profiles_delta,
+            "loglik_delta": loglik_delta,
             "loglik": loglik
         }
 
