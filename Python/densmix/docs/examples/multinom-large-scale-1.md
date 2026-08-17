@@ -106,7 +106,7 @@ fit_summary_df = pd.DataFrame(
     {
         "converged": [fit.converged for fit in multinomial_fits],
         "n_iter": [fit.n_iter for fit in multinomial_fits],
-        "profiles_delta": [fit.profiles_delta for fit in multinomial_fits],
+        "loglik_delta": [fit.log_likelihood_delta for fit in multinomial_fits],
     }
 )
 
@@ -136,39 +136,39 @@ fit_summary_df.head()
       <th></th>
       <th>converged</th>
       <th>n_iter</th>
-      <th>profiles_delta</th>
+      <th>loglik_delta</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>True</td>
-      <td>5</td>
-      <td>9.863791e-08</td>
+      <td>6</td>
+      <td>4.256066e-12</td>
     </tr>
     <tr>
       <th>1</th>
       <td>True</td>
-      <td>7</td>
-      <td>6.248687e-07</td>
+      <td>12</td>
+      <td>8.854844e-12</td>
     </tr>
     <tr>
       <th>2</th>
       <td>True</td>
-      <td>5</td>
-      <td>1.274141e-07</td>
+      <td>6</td>
+      <td>2.938545e-11</td>
     </tr>
     <tr>
       <th>3</th>
       <td>True</td>
-      <td>805</td>
-      <td>3.925841e-07</td>
+      <td>7</td>
+      <td>8.543251e-14</td>
     </tr>
     <tr>
       <th>4</th>
       <td>True</td>
-      <td>39</td>
-      <td>9.221711e-07</td>
+      <td>9</td>
+      <td>8.906488e-14</td>
     </tr>
   </tbody>
 </table>
@@ -277,7 +277,7 @@ print(f"Perfectly classified datasets: {np.mean(accuracies == 1):.1%}")
 
     Mean accuracy: 96.8%
     Median accuracy: 100.0%
-    Perfectly classified datasets: 67.0%
+    Perfectly classified datasets: 65.0%
     
 
 ## Component weights
@@ -399,17 +399,17 @@ iteration_quantiles
     
 
 
-    Converged fits: 94.0%
+    Converged fits: 96.0%
     
 
 
 
 
-    minimum      2.0
-    25%          4.0
-    median       5.0
-    75%         12.5
-    maximum    999.0
+    minimum      2.00
+    25%          4.00
+    median       6.00
+    75%         11.25
+    maximum    999.00
     Name: n_iter, dtype: float64
 
 
