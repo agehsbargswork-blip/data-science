@@ -66,7 +66,8 @@ class Generator:
                               loc=parameters["mu"],
                               scale=parameters["sigma"]
                               )
-        return np.concatenate((s1,s2),axis=0)
+        data = np.concatenate((s1,s2),axis=0)
+        return data[np.random.permutation(data.shape[0])]
 
     def gen_multinom(self):
 
@@ -109,6 +110,10 @@ class Generator:
         ]
         datasets = np.concatenate(datasets, axis=0)
 
+        permutation = np.random.permutation(datasets.shape[0])
+        datasets = datasets[permutation]
+        component_labels = component_labels[permutation]
+
         res = {
             "data": datasets,
             "component_labels": component_labels,
@@ -116,4 +121,3 @@ class Generator:
         }
 
         return res
-
