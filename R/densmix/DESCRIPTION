@@ -14,6 +14,7 @@ Imports:
     graphics,
     grDevices,
     jsonlite,
+    matrixStats,
     stats,
     utils
 Config/roxygen2/version: 8.1.0

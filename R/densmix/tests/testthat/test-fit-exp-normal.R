@@ -49,3 +49,36 @@ test_that("fit_exp_normal() approximately recovers parameters", {
   expect_equal(as.numeric(estimates["mu"]), 10, tolerance = 0.03)
   expect_equal(as.numeric(estimates["sigma"]), 2, tolerance = 0.03)
 })
+
+
+test_that("fit_exp_normal() remains finite when densities underflow", {
+  data <- c(
+    seq(0.1, 2, length.out = 50),
+    seq(9, 11, length.out = 50),
+    1e6
+  )
+
+  fit <- fit_exp_normal(
+    data,
+    start = list(
+      weight = 0.5,
+      lambda = 1,
+      mu = 10,
+      sigma = 1
+    ),
+    control = list(
+      max_iter = 1,
+      min_lambda = 1e-10,
+      min_mu = 1e-10,
+      min_sigma = 1e-10
+    )
+  )
+
+  expect_true(all(is.finite(fit$loglik)))
+  expect_true(all(is.finite(fit$bayes_probs)))
+  expect_equal(
+    rowSums(fit$bayes_probs),
+    rep(1, length(data)),
+    tolerance = 1e-12
+  )
+})
