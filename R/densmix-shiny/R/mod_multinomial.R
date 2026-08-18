@@ -26,13 +26,8 @@ multinomial_ui <- function(id) {
         max = 30,
         step = 1
       ),
-      numericInput(
-        ns("dirichlet_alpha"),
-        "Dirichlet concentration",
-        value = 1,
-        min = 0.05,
-        step = 0.1
-      ),
+      tags$label("Dirichlet concentrations"),
+      uiOutput(ns("dirichlet_inputs")),
       numericInput(
         ns("max_actions"),
         "Maximum actions",
@@ -61,6 +56,7 @@ multinomial_ui <- function(id) {
       ),
       helpText(
         "Generated components use equal weights. ",
+        "Dirichlet concentrations must be positive and do not need to sum to one. ",
         "Component labels are arbitrary and may be permuted after fitting."
       )
     ),
@@ -73,14 +69,54 @@ multinomial_ui <- function(id) {
 
 multinomial_server <- function(id) {
   moduleServer(id, function(input, output, session) {
+    output$dirichlet_inputs <- renderUI({
+      n_buckets <- req(as.integer(input$n_buckets))
+
+      inputs <- lapply(seq_len(n_buckets), function(i) {
+        input_id <- paste0("dirichlet_", i)
+        current_value <- isolate(input[[input_id]])
+
+        numericInput(
+          session$ns(input_id),
+          label = paste("Bucket", i),
+          value = if (is.null(current_value)) 1 else current_value,
+          min = 0.01,
+          step = 0.1,
+          width = "100%"
+        )
+      })
+
+      div(
+        style = paste(
+          "display: grid;",
+          "grid-template-columns: repeat(3, minmax(80px, 1fr));",
+          "gap: 8px;"
+        ),
+        tagList(inputs)
+      )
+    })
+
     result <- eventReactive(input$fit, {
       n_components <- as.integer(input$n_components)
       n_buckets <- as.integer(input$n_buckets)
+      dirichlet <- vapply(
+        seq_len(n_buckets),
+        function(i) {
+          value <- input[[paste0("dirichlet_", i)]]
+          req(value)
+          value
+        },
+        numeric(1)
+      )
 
       validate(
         need(
           input$size >= n_components,
           "Sample size must be at least the number of components."
+        ),
+        need(
+          all(is.finite(dirichlet) & dirichlet > 0),
+          "Every Dirichlet concentration must be positive."
         ),
         need(
           input$max_actions * input$prob_action >= 1,
@@ -93,7 +129,7 @@ multinomial_server <- function(id) {
       parameters <- list(
         n_components = n_components,
         n_buckets = n_buckets,
-        dirichlet = rep(input$dirichlet_alpha, n_buckets),
+        dirichlet = dirichlet,
         component_weights = rep(1 / n_components, n_components),
         n_actions_per_bucket = list(
           max_actions = as.integer(input$max_actions),
@@ -143,6 +179,10 @@ multinomial_server <- function(id) {
 
       print(
         list(
+          requested_dirichlet = round(
+            value$parameters$dirichlet,
+            4
+          ),
           requested_weights = round(
             value$parameters$component_weights,
             4
