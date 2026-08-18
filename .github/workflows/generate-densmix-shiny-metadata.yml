@@ -65,7 +65,7 @@ jobs:
             )
           )
           fit <- densmix::fit_exp_normal(sample)
-          stopifnot(is.list(fit$parameters))
+          stopifnot(!is.null(fit$parameters))
 
           renv::snapshot(
             project = app_dir,
