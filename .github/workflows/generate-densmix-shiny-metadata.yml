@@ -1,0 +1,84 @@
+name: Generate densmix Shiny deployment metadata
+
+on:
+  push:
+    branches:
+      - feat/shiny-r-app-1
+    paths:
+      - .github/workflows/generate-densmix-shiny-metadata.yml
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/shiny-r-app-1
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.5.2"
+          use-public-rspm: true
+
+      - name: Install metadata tooling and Shiny
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::renv
+            any::remotes
+            any::rsconnect
+            any::shiny
+
+      - name: Install densmix from this branch
+        shell: Rscript {0}
+        run: |
+          remotes::install_github(
+            "agehsbargswork-blip/data-science",
+            ref = "feat/shiny-r-app-1",
+            subdir = "R/densmix",
+            dependencies = TRUE,
+            upgrade = "never"
+          )
+
+      - name: Smoke-test the model and generate deployment metadata
+        shell: Rscript {0}
+        run: |
+          app_dir <- "R/densmix-shiny"
+
+          set.seed(1)
+          sample <- densmix::gen_exp_normal(
+            size = 100,
+            parameters = list(
+              weight = 0.5,
+              lambda = 0.6,
+              mu = 10,
+              sigma = 2
+            )
+          )
+          fit <- densmix::fit_exp_normal(sample)
+          stopifnot(is.list(fit$parameters))
+
+          renv::snapshot(
+            project = app_dir,
+            packages = c("shiny", "densmix"),
+            prompt = FALSE
+          )
+          rsconnect::writeManifest(
+            appDir = app_dir,
+            appMode = "shiny"
+          )
+
+      - name: Commit generated metadata and remove generator
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add R/densmix-shiny/renv.lock R/densmix-shiny/manifest.json
+          git rm .github/workflows/generate-densmix-shiny-metadata.yml
+          git commit -m "Generate Shiny deployment metadata"
+          git push origin feat/shiny-r-app-1
