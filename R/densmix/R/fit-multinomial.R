@@ -53,21 +53,38 @@ fit_multinomial <- function(data,
   while(i <= control[['max_iter']]){
 
     # E-step
-    bayes_probs_tmp <-
+    component_log_probabilities <-
       lapply(
         seq(1:n_components),
         function(j){
-          parameters[['weights']][j]*
+          log(parameters[['weights']][j]) +
             apply(data,
                   1,
                   function(z){
-                    dmultinom(x=z, prob=parameters[['mixture_profiles']][j,])
+                    dmultinom(
+                      x = z,
+                      prob = parameters[['mixture_profiles']][j,],
+                      log = TRUE
+                    )
                   })
         }
       )
 
-    bayes_probs_tmp <- do.call(cbind,bayes_probs_tmp)
-    bayes_probs <- bayes_probs_tmp / rowSums(bayes_probs_tmp)
+    component_log_probabilities <- do.call(
+      cbind,
+      component_log_probabilities
+    )
+    log_probability <- matrixStats::rowLogSumExps(
+      component_log_probabilities
+    )
+    bayes_probs <- exp(
+      sweep(
+        component_log_probabilities,
+        1,
+        log_probability,
+        FUN = '-'
+      )
+    )
     bayescolsums <- colSums(bayes_probs)
 
     # M-step

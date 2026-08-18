@@ -50,12 +50,23 @@ fit_exp_normal <- function(data,
 
   while( i <= control['max_iter'] ) {
 
-    expd <- parameters['weight'] * dexp(data, rate = parameters['lambda'])
-    normd <- (1-parameters['weight']) * dnorm(data, mean = parameters['mu'], sd = parameters['sigma'])
-    loglik <- c(loglik,sum(log(expd+normd,exp(1))))
+    component_log_densities <- cbind(
+      exponential = log(parameters['weight']) +
+        dexp(data, rate = parameters['lambda'], log = TRUE),
+      normal = log1p(-parameters['weight']) +
+        dnorm(
+          data,
+          mean = parameters['mu'],
+          sd = parameters['sigma'],
+          log = TRUE
+        )
+    )
+    log_density <- matrixStats::rowLogSumExps(component_log_densities)
+    loglik <- c(loglik, sum(log_density))
 
-
-    bayes_probs <- expd / (expd + normd)
+    bayes_probs <- exp(
+      component_log_densities[, 'exponential'] - log_density
+    )
     total_prob <- sum(bayes_probs)
     weighted_data <- sum(bayes_probs*data)
 
@@ -104,9 +115,22 @@ fit_exp_normal <- function(data,
 
     if(total_delta < control['tolerance']){
       converged <- TRUE
-      expd <- parameters['weight'] * dexp(data, rate = parameters['lambda'])
-      normd <- (1-parameters['weight']) * dnorm(data, mean = parameters['mu'], sd = parameters['sigma'])
-      loglik <- c(loglik,sum(log(expd+normd,exp(1))))
+      component_log_densities <- cbind(
+        exponential = log(parameters['weight']) +
+          dexp(data, rate = parameters['lambda'], log = TRUE),
+        normal = log1p(-parameters['weight']) +
+          dnorm(
+            data,
+            mean = parameters['mu'],
+            sd = parameters['sigma'],
+            log = TRUE
+          )
+      )
+      log_density <- matrixStats::rowLogSumExps(component_log_densities)
+      loglik <- c(loglik, sum(log_density))
+      bayes_probs <- exp(
+        component_log_densities[, 'exponential'] - log_density
+      )
       i <- i+1
       break
     }

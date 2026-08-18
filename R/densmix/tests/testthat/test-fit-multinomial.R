@@ -54,3 +54,31 @@ test_that("fit_exp_normal() approximately recovers parameters", {
   expect_equal(as.numeric(fitweights), trueweights, tolerance = 0.1)
 
 })
+
+
+test_that("fit_multinomial() remains finite when probabilities underflow", {
+  data <- rbind(
+    c(10000, 0),
+    c(0, 10000)
+  )
+
+  fit <- fit_multinomial(
+    data,
+    n_components = 2,
+    start = list(
+      mixture_profiles = rbind(
+        c(0.6, 0.4),
+        c(0.4, 0.6)
+      ),
+      weights = c(0.5, 0.5)
+    ),
+    control = list(max_iter = 1)
+  )
+
+  expect_true(all(is.finite(fit$bayes_probs)))
+  expect_equal(
+    rowSums(fit$bayes_probs),
+    rep(1, nrow(data)),
+    tolerance = 1e-12
+  )
+})
