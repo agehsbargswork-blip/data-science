@@ -1,9 +1,9 @@
 name: Test densmix Shiny modules
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/shiny-r-multinom
+      - main
     paths:
       - .github/workflows/test-densmix-shiny-modules.yml
 
