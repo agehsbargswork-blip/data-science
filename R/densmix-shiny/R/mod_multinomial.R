@@ -43,13 +43,6 @@ multinomial_ui <- function(id) {
         value = 0.5,
         step = 0.01
       ),
-      numericInput(
-        ns("seed"),
-        "Random seed",
-        value = 123,
-        min = 0,
-        step = 1
-      ),
       actionButton(
         ns("fit"),
         "Generate and fit"
@@ -123,8 +116,6 @@ multinomial_server <- function(id) {
           "Increase maximum actions or action probability."
         )
       )
-
-      set.seed(as.integer(input$seed))
 
       parameters <- list(
         n_components = n_components,
